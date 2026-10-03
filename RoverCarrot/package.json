@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "onnxruntime-node": "1.27.0",
+    "pngjs": "7.0.0",
     "sharp": "0.35.5",
     "smol-toml": "1.9.0"
   },

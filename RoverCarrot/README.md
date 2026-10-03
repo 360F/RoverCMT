@@ -307,7 +307,8 @@ No full historical work-context snapshot is added to per-request artifacts.
 Real managed runs use the configured Carrot path by default: autoFont=false,
 autoSize=true, bubbleLayout=true, naturalLayout=false. Select
 `["detect", "ocr", "translate", "typography", "erase", "layout"]` for the current
-pipeline. Typography runs before the no-op erase, then layout. Existing model-free
+pipeline. Typography runs before erase, then layout. Erase uses Flux when
+`[inpainting]` is configured. Existing model-free
 smoke configs without managed translation or `[typography]` retain smoke behavior.
 
 Optional configuration:
@@ -324,8 +325,7 @@ naturalLayout = false
 The CLI still imports a new output; overwrite is not a resume feature. Layout
 uses `[models].koharu` even if detect was not selected. Missing model/runtime
 fails when a nonempty layout page needs detection. Original raster is always the
-detector input; `inpaintedImagePath` participates only in revision hashing until
-Step 6. Model/session/detection failures propagate through the stage boundary.
+detector input; `inpaintedImagePath` participates in revision hashing. Model/session/detection failures propagate through the stage boundary.
 Missing translated text makes a block ineligible for geometry, preserving Carrot's
 partial-translation behavior. Existing/manual layouts are preserved unless
 explicitly overwritten. Source bbox/text/formatting are protected by the reference
@@ -364,3 +364,74 @@ and detector-input differences then fail exact comparison. The orchestrator's
 four-page GPU OCR/managed translation run is
 `node tools/typography-smoke.mjs <ISOLATED_STEP5_TOML>`. See the validation document
 for prepared commands and remaining acceptance requirements.
+
+
+## Inpainting / erase (Step 6)
+
+The Linux adapter uses Carrot's Flux.2 Klein CUDA runner, model and generation
+parameters. CUDA build and real GPU validation are performed by the orchestrator;
+see [Step 6 evidence](docs/milestones/M1_LINUX_PORT/STEP6_VALIDATION.md). Build only
+when authorized to provision the local runtime:
+
+```bash
+python3 runtime/flux/build.py --build --jobs 16
+node tools/flux-model-identity.mjs <ABS_MODEL_GGUF> <ABS_VAE_SAFETENSORS> <NEW_RECEIPT_UNDER_TEST_DATA>
+```
+
+All runtime and model locations below must be absolute. The receipt tool hashes
+both pinned files once and refuses to overwrite a receipt. Use its absolute path
+as `modelIdentityPath`; regenerate a new receipt if path or mtime changes.
+
+```toml
+[inpainting]
+backend = "flux-klein-cuda"
+runnerPath = "/ABS/RoverCarrot/test-data/runtime/flux-sm120/bin/mgt-flux-klein"
+cudaLibraryDir = "/ABS/RoverCarrot/test-data/runtime/flux-sm120/cuda-12.9/lib64"
+# Optional absolute NVIDIA driver directory; otherwise discovered via ldconfig -p.
+# cudaDriverLibraryDir = "/usr/lib/wsl/lib"
+modelPath = "/ABS/models/flux-2-klein-4b-Q4_K_M.gguf"
+vaePath = "/ABS/models/diffusion_pytorch_model.safetensors"
+modelIdentityPath = "/ABS/RoverCarrot/test-data/validation/m1-step6/model-identity.json"
+```
+
+Omitting the table, or leaving every path blank in the generated template, keeps
+the existing model-free erase smoke stage. Supplying any path enables validation
+of the complete table. There is no automatic model download or CPU fallback.
+The runner is started lazily after sequential translation completes, reused across
+erase pages, and disposed in `finally` after the run. Prepass uses the original
+Koharu CPU detector with transient unpadded geometry; the final layout stage runs
+separately. Missing translation does not exclude a block from erase. Unchanged
+blocks fail the page while preserving any successful partial result, mask artifact
+and changed-block bindings. `sourceEraseScale` is not applied on this sequential
+reference path.
+
+Programmatic callers compose `eraseStage({ plan, stages, acquireEngine, runner })`
+with Core `run()`. The lease owner must dispose its engine after the run.
+`defaultErasePlan` preserves installed Carrot `bubbleLayout=true`,
+`overwrite=["erase"]`. Sharp replaces Electron image I/O with async premultiplied
+BGRA conversion; resampling equivalence with Electron remains a validation limit.
+No tolerance is used by the deterministic algorithm comparisons.
+
+```bash
+npm run build
+node tools/audit-erase-ports.mjs
+node tools/validate-erase.mjs <STEP3_CONTEXT_JSON> <NEW_EVIDENCE_DIR>
+# Claude-run GPU checks with isolated TOML, fresh output and evidence directories:
+node tools/erase-smoke.mjs runner <ISOLATED_STEP6_TOML> <NEW_EVIDENCE_DIR> <BOUND_PAGE_JSON>
+HF_HUB_OFFLINE=1 node tools/erase-smoke.mjs e2e <ISOLATED_STEP6_TOML> <NEW_EVIDENCE_DIR>
+```
+
+The E2E tool requires exactly four pages and detect → GPU OCR → managed
+translation → typography → erase → layout. Its lifecycle JSONL contains actual
+llama start/stop and Flux spawn/dispose observations plus GPU snapshots. Claude
+must inspect those snapshots for VRAM release, especially where WSL omits process
+memory. The tools do not stop Docker containers or manipulate user processes.
+
+Flux preflight requires a loadable **unversioned** `libcuda.so` in the explicit
+`cudaDriverLibraryDir` or a directory discovered from linker-cache `libcuda.so.1`
+entries. The runner environment orders pinned CUDA 12.9 libraries, NVIDIA driver
+libraries, then inherited `LD_LIBRARY_PATH`. No system symlinks are created.
+`RUST_LOG=warn,koharu_runtime=info,koharu_ml=info` exposes the driver check;
+CPU fallback is a fatal cuda-native engine error. GPU smoke requires the positive
+koharu driver-support message, records model load and per-crop times, and fails
+on CPU fallback. Driver loading is probed with repository-required Python ctypes.

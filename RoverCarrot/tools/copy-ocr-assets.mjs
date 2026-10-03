@@ -8,3 +8,9 @@ for (const name of ['llama', 'translation-images', 'translation-store']) await c
 await cp('src/typography', 'dist/typography', { recursive: true, filter: path => !path.endsWith('.ts') });
 await cp('src/layout', 'dist/layout', { recursive: true, filter: path => !path.endsWith('.ts') });
 for (const name of ['typography-raster', 'bubble-layout']) await copyFile(`src/adapters/${name}.mjs`, `dist/adapters/${name}.mjs`);
+
+await cp('src/erase', 'dist/erase', { recursive: true, filter: path => !path.endsWith('.ts') });
+for (const name of ['flux', 'native-image']) {
+  await copyFile(`src/adapters/${name}.mjs`, `dist/adapters/${name}.mjs`);
+}
+await copyFile('src/adapters/flux.d.mts', 'dist/adapters/flux.d.mts');

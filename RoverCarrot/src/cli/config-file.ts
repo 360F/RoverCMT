@@ -51,9 +51,21 @@ targetLanguage = "ko"
 cumulative = true
 cumulativeDetail = "detailed"
 export = true
+# Optional: styleGuidePath, previousStoryPath + previousChapterPath, exportRoot (absolute paths).
 # Typography uses autoFont=false, autoSize=true, bubbleLayout=true, naturalLayout=false.
 # Optional [typography] table overrides those values; autoFont=true awaits D17.
-# Optional: styleGuidePath, previousStoryPath + previousChapterPath, exportRoot (absolute paths).
+
+[inpainting]
+backend = "flux-klein-cuda"
+# Absolute paths: recipe-built runner, its CUDA 12.9 library dir, pinned Flux
+# Q4_K_M transformer + small decoder VAE, and their identity receipt.
+runnerPath = ""
+cudaLibraryDir = ""
+# Optional absolute driver directory; omit to discover libcuda.so.1 via ldconfig.
+# cudaDriverLibraryDir = "/ABS/NVIDIA/driver/lib"
+modelPath = ""
+vaePath = ""
+modelIdentityPath = ""
 `;
 
 export class ConfigError extends Error {}
@@ -75,7 +87,7 @@ export function parseConfigToml(text: string, cwd: string, overrides: PathOverri
     const first = (error instanceof Error ? error.message : String(error)).split('\n')[0];
     throw new ConfigError(`Invalid TOML: ${first}`, { cause: error });
   }
-  const top = table(doc, 'top level', ['version', 'mode', 'paths', 'pipeline', 'models', 'ocr', 'translation', 'typography']);
+  const top = table(doc, 'top level', ['version', 'mode', 'paths', 'pipeline', 'models', 'ocr', 'translation', 'typography', 'inpainting']);
   const paths = table(top.paths, 'paths', ['input', 'output']);
   const pipeline = table(top.pipeline, 'pipeline', ['stages']);
   const models = table(top.models, 'models', ['koharu']);
@@ -87,6 +99,8 @@ export function parseConfigToml(text: string, cwd: string, overrides: PathOverri
   for (const [key, value] of [['input', paths.input], ['output', paths.output], ['stages', pipeline.stages]] as const)
     if (value !== undefined) raw[key] = value;
   if (top.typography !== undefined) raw.typography = typography;
+  const inpainting = table(top.inpainting, 'inpainting', ['backend', 'runnerPath', 'cudaLibraryDir', 'cudaDriverLibraryDir', 'modelPath', 'vaePath', 'modelIdentityPath']);
+  if (top.inpainting !== undefined) raw.inpainting = inpainting;
   if (top.translation !== undefined) raw.translation = translation;
   if (top.ocr !== undefined) raw.ocr = ocr;
   if (top.models !== undefined) raw.models = models;

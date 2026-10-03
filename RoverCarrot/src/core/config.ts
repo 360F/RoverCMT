@@ -17,7 +17,7 @@ function pathValue(name: string, override: unknown, configured: unknown, base: s
 export function resolveConfig(raw: unknown, base: string = process.cwd(), overrides: PathOverrides = {}): Config {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Config must be an object');
   const value = raw as Record<string, unknown>;
-  if (Object.keys(value).some(key => !['version', 'mode', 'input', 'output', 'stages', 'models', 'ocr', 'translation', 'typography'].includes(key)))
+  if (Object.keys(value).some(key => !['version', 'mode', 'input', 'output', 'stages', 'models', 'ocr', 'translation', 'typography', 'inpainting'].includes(key)))
     throw new Error('Unknown config field');
   if (value.version !== 1 || value.mode !== 'smoke') throw new Error('Step 1 requires version=1, mode=smoke');
   const input = pathValue('input', overrides.input, value.input, base);
@@ -82,5 +82,20 @@ export function resolveConfig(raw: unknown, base: string = process.cwd(), overri
       translation = t as Config['translation'];
     }
   }
-  return { ...(typography ? { typography } : {}), ...(translation ? { translation } : {}), ...(ocr ? { ocr } : {}), ...(models ? { models } : {}), version: 1, mode: 'smoke', input, output, stages: STAGES.filter(id => (stages as StageId[]).includes(id)) };
+  let inpainting: Config['inpainting'];
+  if (value.inpainting !== undefined) {
+    const t = value.inpainting as Record<string, unknown>;
+    const keys = ['backend', 'runnerPath', 'cudaLibraryDir', 'cudaDriverLibraryDir', 'modelPath', 'vaePath', 'modelIdentityPath'];
+    if (!t || typeof t !== 'object' || Array.isArray(t) || Object.keys(t).some(k => !keys.includes(k))) throw new Error('Unknown inpainting config field');
+    for (const key of keys) if (t[key] !== undefined && typeof t[key] !== 'string') throw new Error(`inpainting.${key} must be a string`);
+    if (t.cudaDriverLibraryDir !== undefined && (typeof t.cudaDriverLibraryDir !== 'string' || !isAbsolute(t.cudaDriverLibraryDir))) throw new Error('inpainting.cudaDriverLibraryDir must be an absolute path');
+    if (t.backend && t.backend !== 'flux-klein-cuda') throw new Error('Unsupported inpainting backend');
+    if (keys.slice(1).some(key => typeof t[key] === 'string' && (t[key] as string).trim())) {
+      if (t.backend !== 'flux-klein-cuda') throw new Error('Inpainting requires backend = "flux-klein-cuda" (Carrot flux-klein cuda-native)');
+      for (const key of keys.slice(1).filter(key => key !== 'cudaDriverLibraryDir'))
+        if (typeof t[key] !== 'string' || !isAbsolute(t[key] as string)) throw new Error(`inpainting.${key} must be an absolute path`);
+      inpainting = t as Config['inpainting'];
+    }
+  }
+  return { ...(inpainting ? { inpainting } : {}), ...(typography ? { typography } : {}), ...(translation ? { translation } : {}), ...(ocr ? { ocr } : {}), ...(models ? { models } : {}), version: 1, mode: 'smoke', input, output, stages: STAGES.filter(id => (stages as StageId[]).includes(id)) };
 }

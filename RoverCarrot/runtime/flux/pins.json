@@ -1,0 +1,302 @@
+{
+  "runnerSource": "copy of reference fork fd461737 tools/mgt-flux-klein-runner + tools/runner-runtime-policy (byte-identical)",
+  "computeCap": "120",
+  "cudaVersion": "12.9",
+  "rust": {
+    "toolchain": "1.99.0",
+    "rustupVersion": "1.29.1",
+    "rustupInitUrl": "https://static.rust-lang.org/rustup/archive/1.29.1/x86_64-unknown-linux-gnu/rustup-init",
+    "rustupInitBytes": 21113232,
+    "rustupInitSha256": "dda7234360b7f578ca8b0ddcb80145646fa61a67c1720a5abc7051b35c9fcb71"
+  },
+  "cudaRedistManifests": {
+    "cuda": "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.9.0.json",
+    "cudnn": "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.21.0.json"
+  },
+  "archives": [
+    {
+      "component": "cuda_nvcc",
+      "version": "12.9.41",
+      "url": "https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/linux-x86_64/cuda_nvcc-linux-x86_64-12.9.41-archive.tar.xz",
+      "bytes": 81089532,
+      "sha256": "b3a0e115840e04c0cfa559263cbbe8b78a2455788e12605732aff68abc50dd34"
+    },
+    {
+      "component": "cuda_cudart",
+      "version": "12.9.37",
+      "url": "https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/linux-x86_64/cuda_cudart-linux-x86_64-12.9.37-archive.tar.xz",
+      "bytes": 1517756,
+      "sha256": "db950a2443a34daa10069c8df1bccec868af3144cb898cd1d903a9ea04cccfa4"
+    },
+    {
+      "component": "cuda_cccl",
+      "version": "12.9.27",
+      "url": "https://developer.download.nvidia.com/compute/cuda/redist/cuda_cccl/linux-x86_64/cuda_cccl-linux-x86_64-12.9.27-archive.tar.xz",
+      "bytes": 997888,
+      "sha256": "8b1a5095669e94f2f9afd7715533314d418179e9452be61e2fde4c82a3e542aa"
+    },
+    {
+      "component": "libcublas",
+      "version": "12.9.0.13",
+      "url": "https://developer.download.nvidia.com/compute/cuda/redist/libcublas/linux-x86_64/libcublas-linux-x86_64-12.9.0.13-archive.tar.xz",
+      "bytes": 932940056,
+      "sha256": "bc51ee77e5891614e070066c0dabc52b609302bac2127aff850020b14f35716b"
+    },
+    {
+      "component": "libcurand",
+      "version": "10.3.10.19",
+      "url": "https://developer.download.nvidia.com/compute/cuda/redist/libcurand/linux-x86_64/libcurand-linux-x86_64-10.3.10.19-archive.tar.xz",
+      "bytes": 89582256,
+      "sha256": "48281b4caadb1cf790d44ac76b23c77d06f474c0b1799814f314aafec9258ad6"
+    },
+    {
+      "component": "libcufft",
+      "version": "11.4.0.6",
+      "url": "https://developer.download.nvidia.com/compute/cuda/redist/libcufft/linux-x86_64/libcufft-linux-x86_64-11.4.0.6-archive.tar.xz",
+      "bytes": 469803000,
+      "sha256": "31c2e800afc3111b966c63918cc9c257f5e7917ae4c881e97a67850a8caf3cb9"
+    },
+    {
+      "component": "cudnn",
+      "version": "9.21.0.82",
+      "url": "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-9.21.0.82_cuda12-archive.tar.xz",
+      "bytes": 961592888,
+      "sha256": "9f97dde6528a1733550c79ee3f5ba3e9a0638e0e1670e4b167d56e0ef6d5910b"
+    }
+  ],
+  "openssl": {
+    "version": "3.5.5",
+    "url": "https://github.com/openssl/openssl/releases/download/openssl-3.5.5/openssl-3.5.5.tar.gz",
+    "bytes": 53104821,
+    "sha256": "b28c91532a8b65a1f983b4c28b7488174e4a01008e29ce8e69bd789f28bc2a89",
+    "configureOptions": [
+      "linux-x86_64",
+      "no-shared",
+      "no-tests",
+      "--libdir=lib"
+    ]
+  },
+  "buildTools": [
+    {
+      "package": "cmake",
+      "version": "4.3.4",
+      "file": "cmake-4.3.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/cd/0c/050f6470163998205646dcce8b262612eeae49486320b106be1cc2175f8b/cmake-4.3.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "bytes": 29528910,
+      "sha256": "61a34a746853b3740c6ad494e51faf4d457b9ef82099e19974148808c31cc2eb"
+    },
+    {
+      "package": "ninja",
+      "version": "1.13.2",
+      "file": "ninja-1.13.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/6e/53/ebfed7b689c338dd8ebeec9c0730c8d56821292f14e2536e5f3ef1a05744/ninja-1.13.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "bytes": 183365,
+      "sha256": "65a24341b5ac09fcadcc37082660be40a94174e51a937fabf6e2cae26225fa2c"
+    }
+  ],
+  "nvccHostCompiler": {
+    "provider": "conda-forge",
+    "version": "14.3.0",
+    "repodataUrls": [
+      "https://conda.anaconda.org/conda-forge/linux-64/repodata.json.bz2",
+      "https://conda.anaconda.org/conda-forge/noarch/repodata.json.bz2"
+    ],
+    "packages": [
+      {
+        "name": "gcc_impl_linux-64",
+        "version": "14.3.0",
+        "build": "h054831b_20",
+        "subdir": "linux-64",
+        "file": "gcc_impl_linux-64-14.3.0-h054831b_20.conda",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/gcc_impl_linux-64-14.3.0-h054831b_20.conda",
+        "sha256": "09bb9b0d54b012c36a115e3ecebc80276df261555e847afbb3fbc7ab5566408c",
+        "bytes": 73421270,
+        "depends": [
+          "binutils_impl_linux-64 >=2.46.1",
+          "libgcc >=14.3.0",
+          "libgcc-devel_linux-64 14.3.0 hf649bbc_120",
+          "libgomp >=14.3.0",
+          "libsanitizer 14.3.0 h91d2232_20",
+          "libstdcxx >=14.3.0",
+          "libstdcxx-devel_linux-64 14.3.0 h9f08a49_120",
+          "sysroot_linux-64"
+        ]
+      },
+      {
+        "name": "gxx_impl_linux-64",
+        "version": "14.3.0",
+        "build": "h99ea42b_20",
+        "subdir": "linux-64",
+        "file": "gxx_impl_linux-64-14.3.0-h99ea42b_20.conda",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/gxx_impl_linux-64-14.3.0-h99ea42b_20.conda",
+        "sha256": "8cd46d6f94a5a34181492549e1e56e5795337007289e6ca30d9ff1864f0e33c1",
+        "bytes": 14756288,
+        "depends": [
+          "gcc_impl_linux-64 14.3.0 h054831b_20",
+          "libstdcxx-devel_linux-64 14.3.0 h9f08a49_120",
+          "sysroot_linux-64",
+          "tzdata"
+        ]
+      },
+      {
+        "name": "libgcc-devel_linux-64",
+        "version": "14.3.0",
+        "build": "hf649bbc_120",
+        "subdir": "noarch",
+        "file": "libgcc-devel_linux-64-14.3.0-hf649bbc_120.conda",
+        "url": "https://conda.anaconda.org/conda-forge/noarch/libgcc-devel_linux-64-14.3.0-hf649bbc_120.conda",
+        "sha256": "9e2a3e7de26fc149707f9ff3988dc3e6a0b9534aea1bedcaa6ec9ba93dfdd013",
+        "bytes": 3089154,
+        "depends": [
+          "__unix"
+        ]
+      },
+      {
+        "name": "libstdcxx-devel_linux-64",
+        "version": "14.3.0",
+        "build": "h9f08a49_120",
+        "subdir": "noarch",
+        "file": "libstdcxx-devel_linux-64-14.3.0-h9f08a49_120.conda",
+        "url": "https://conda.anaconda.org/conda-forge/noarch/libstdcxx-devel_linux-64-14.3.0-h9f08a49_120.conda",
+        "sha256": "5b7fd889a648c71d71a7cdda09107c0f189aa306f77c33cd66678a56cb225e53",
+        "bytes": 19363621,
+        "depends": [
+          "__unix"
+        ]
+      },
+      {
+        "name": "libgcc",
+        "version": "14.3.0",
+        "build": "he0feb66_20",
+        "subdir": "linux-64",
+        "file": "libgcc-14.3.0-he0feb66_20.conda",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/libgcc-14.3.0-he0feb66_20.conda",
+        "sha256": "ee549953022da53692ae9a5da17a5d4a1829b9a173b68433e529279f0d2f9305",
+        "bytes": 1040313,
+        "depends": [
+          "__glibc >=2.17,<3.0.a0",
+          "_openmp_mutex >=4.5"
+        ]
+      },
+      {
+        "name": "libstdcxx",
+        "version": "14.3.0",
+        "build": "h934c35e_20",
+        "subdir": "linux-64",
+        "file": "libstdcxx-14.3.0-h934c35e_20.conda",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-14.3.0-h934c35e_20.conda",
+        "sha256": "83447d514a21052674806585721fef05979dd6700ca199dbfdef713b6113cb2b",
+        "bytes": 5775591,
+        "depends": [
+          "__glibc >=2.17,<3.0.a0",
+          "libgcc 14.3.0 he0feb66_20"
+        ]
+      },
+      {
+        "name": "libgomp",
+        "version": "14.3.0",
+        "build": "he0feb66_20",
+        "subdir": "linux-64",
+        "file": "libgomp-14.3.0-he0feb66_20.conda",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/libgomp-14.3.0-he0feb66_20.conda",
+        "sha256": "b182215de444505bf9d590d409cc685b2fc1510ea5e865ffb2e0c6d4619cd01c",
+        "bytes": 589527,
+        "depends": [
+          "__glibc >=2.17,<3.0.a0"
+        ]
+      },
+      {
+        "name": "libsanitizer",
+        "version": "14.3.0",
+        "build": "h91d2232_20",
+        "subdir": "linux-64",
+        "file": "libsanitizer-14.3.0-h91d2232_20.conda",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/libsanitizer-14.3.0-h91d2232_20.conda",
+        "sha256": "4b685b1da0f85f4771e1b243e66cf2cf7b2e625caa440efc082d800a4e9b091e",
+        "bytes": 7299538,
+        "depends": [
+          "__glibc >=2.17,<3.0.a0",
+          "libgcc >=14.3.0",
+          "libstdcxx >=14.3.0"
+        ]
+      },
+      {
+        "name": "binutils_impl_linux-64",
+        "version": "2.46.1",
+        "build": "bootstrap_h59bd682_2",
+        "subdir": "linux-64",
+        "file": "binutils_impl_linux-64-2.46.1-bootstrap_h59bd682_2.conda",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/binutils_impl_linux-64-2.46.1-bootstrap_h59bd682_2.conda",
+        "sha256": "6c7022a754063af8d085a5e46bf34ba934bdc5de2817d77977c0f9862da8d66c",
+        "bytes": 3687596,
+        "depends": [
+          "ld_impl_linux-64 2.46.1 bootstrap_ha15bf96_2",
+          "sysroot_linux-64"
+        ]
+      },
+      {
+        "name": "ld_impl_linux-64",
+        "version": "2.46.1",
+        "build": "bootstrap_ha15bf96_2",
+        "subdir": "linux-64",
+        "file": "ld_impl_linux-64-2.46.1-bootstrap_ha15bf96_2.conda",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.46.1-bootstrap_ha15bf96_2.conda",
+        "sha256": "87a2158a8f16f8082f8d57282ef8f7b56dee8647b95919948cf03df91574edeb",
+        "bytes": 744588,
+        "depends": [
+          "__glibc >=2.17,<3.0.a0"
+        ]
+      },
+      {
+        "name": "sysroot_linux-64",
+        "version": "2.17",
+        "build": "h0157908_18",
+        "subdir": "noarch",
+        "file": "sysroot_linux-64-2.17-h0157908_18.conda",
+        "url": "https://conda.anaconda.org/conda-forge/noarch/sysroot_linux-64-2.17-h0157908_18.conda",
+        "sha256": "69ab5804bdd2e8e493d5709eebff382a72fab3e9af6adf93a237ccf8f7dbd624",
+        "bytes": 15166921,
+        "depends": [
+          "kernel-headers_linux-64 3.10.0 he073ed8_18",
+          "tzdata"
+        ]
+      },
+      {
+        "name": "kernel-headers_linux-64",
+        "version": "3.10.0",
+        "build": "he073ed8_18",
+        "subdir": "noarch",
+        "file": "kernel-headers_linux-64-3.10.0-he073ed8_18.conda",
+        "url": "https://conda.anaconda.org/conda-forge/noarch/kernel-headers_linux-64-3.10.0-he073ed8_18.conda",
+        "sha256": "a922841ad80bd7b222502e65c07ecb67e4176c4fa5b03678a005f39fcc98be4b",
+        "bytes": 943486,
+        "depends": []
+      },
+      {
+        "name": "tzdata",
+        "version": "2026c",
+        "build": "h151e31d_0",
+        "subdir": "noarch",
+        "file": "tzdata-2026c-h151e31d_0.conda",
+        "url": "https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda",
+        "sha256": "b928c30ddcb0e3f544c6eade8352737e6e610e263276b90232db6a578ef899d8",
+        "bytes": 118849,
+        "depends": []
+      },
+      {
+        "name": "_openmp_mutex",
+        "version": "4.5",
+        "build": "20_gnu",
+        "subdir": "linux-64",
+        "file": "_openmp_mutex-4.5-20_gnu.conda",
+        "url": "https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda",
+        "sha256": "1dd3fffd892081df9726d7eb7e0dea6198962ba775bd88842135a4ddb4deb3c9",
+        "bytes": 28948,
+        "depends": [
+          "__glibc >=2.17,<3.0.a0",
+          "libgomp >=7.5.0"
+        ]
+      }
+    ]
+  }
+}

@@ -20,6 +20,7 @@ export type TranslationConfig = { backend: 'managed'; serverPath: string; modelP
   modelIdentityPath: string; runtimeProfile: 'rtx50'; port?: number; sourceLanguage?: string; targetLanguage?: string;
   cumulative?: boolean; cumulativeDetail?: 'detailed' | 'essential'; styleGuidePath?: string; previousStoryPath?: string; previousChapterPath?: string;
   export?: boolean; exportRoot?: string; readingDirection?: 'rtl' | 'ltr' };
+export type InpaintingConfig = { backend: 'flux-klein-cuda'; runnerPath: string; cudaLibraryDir: string; cudaDriverLibraryDir?: string; modelPath: string; vaePath: string; modelIdentityPath: string };
 export type PendingMemory = { styleGuide: Record<string, unknown>; storyMemory: Record<string, unknown> };
 export type TranslationContext = PendingMemory & { previousStoryPages?: Record<string, unknown>[]; pageIndexById?: Record<string, number> };
 export type Config = {
@@ -27,6 +28,7 @@ export type Config = {
   stages: StageId[];
   typography?: { autoFont?: false; autoSize?: boolean; bubbleLayout?: boolean; naturalLayout?: boolean; overwrite?: ('typography' | 'layout')[] };
   translation?: TranslationConfig;
+  inpainting?: InpaintingConfig;
   models?: { koharu: string };
   ocr?: { python: string; hfCache: string; device: string; sourceLanguage: string; timeoutMs?: number };
 };

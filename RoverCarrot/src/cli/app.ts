@@ -1,4 +1,8 @@
 import { defaultPlan } from '../typography/typography.mjs';
+import { eraseStage } from '../erase/stage.js';
+import { defaultErasePlan } from '../erase/erase.mjs';
+import { fluxEngine, preflightFlux } from '../adapters/flux.mjs';
+import { setInpaintingRuntimeLogSink } from '../typography/ported/main/inpainting/inpaintingRuntimeLogger.mjs';
 import { typographyStage } from '../typography/stage.js';
 import { layoutStage } from '../layout/stage.js';
 import { loadTypographyRaster } from '../adapters/typography-raster.mjs';
@@ -40,6 +44,7 @@ export type CliOptions = {
   configPath?: string; // internal isolated validation launcher; public flags unchanged
   ocrRead?: ReadOcr; // internal model-free test injection
   stages?: Stage[]; // tests only: inject failing providers
+  onRuntimeEvent?: (type: string, fields: Record<string, unknown>) => void; // isolated lifecycle validation observer
 };
 
 function parseArgs(argv: string[]): { input?: string; output?: string } {
@@ -125,11 +130,11 @@ export async function runCli(options: CliOptions): Promise<number> {
         log: (type, fields) => log.info(type, fields),
         async open(signal) {
           const prepared = await preflight(translation, projectRoot, signal);
-          return startManaged(translation, prepared, { signal, log: (type, fields) => log.info(type, fields) });
+          return startManaged(translation, prepared, { signal, log: (type, fields) => { log.info(type, fields); options.onRuntimeEvent?.(type, fields); } });
         },
       });
     }
-    if (!options.stages && (config.translation || config.typography)) {
+    if (!options.stages && (config.translation || config.typography || config.inpainting)) {
       const plan = { ...defaultPlan, ...config.typography };
       stages[stages.findIndex(s => s.id === 'typography')] = typographyStage(loadTypographyRaster, plan, (message, fields) => log.info('typography-warning', { message, ...fields }));
       const runner = bubbleLayoutRunner(async page => {
@@ -142,8 +147,49 @@ export async function runCli(options: CliOptions): Promise<number> {
       }, (type, fields) => log.info(type, fields));
       stages[stages.findIndex(s => s.id === 'layout')] = layoutStage(runner, plan, config.translation?.targetLanguage);
     }
-    const result = await run(config, { persistence: observed, stages,
-      onEvent: event => { log.info(event.type, { ...event }); progress.event(event); } });
+    let flux: ReturnType<typeof fluxEngine> | undefined;
+    if (!options.stages && config.stages.includes('erase') && config.inpainting) {
+      const inpainting = config.inpainting;
+      setInpaintingRuntimeLogSink((level: string, message: string, detail: unknown) => {
+        log.info(`inpainting-${level}`, { message, detail });
+        options.onRuntimeEvent?.(`inpainting-${level}`, { message, detail });
+      });
+      // Carrot builds a separate production bubble runner for the erase prepass.
+      const prepassRunner = bubbleLayoutRunner(async page => {
+        if (!runtime) {
+          if (!config.models?.koharu && !options.runtime) throw new ConfigError('models.koharu must be configured for erase prepass');
+          runtime = options.runtime ?? koharuRuntime(config.models!.koharu, (type, fields) => log.info(type, fields));
+        }
+        const image = await prepareImage(page.imagePath);
+        return { imageWidth: image.width, imageHeight: image.height, detections: parseKoharuLayoutOutputs(await runtime.infer(image), image) };
+      }, (type, fields) => log.info(type, fields));
+      stages[stages.findIndex(s => s.id === 'erase')] = eraseStage({
+        plan: { ...defaultErasePlan, bubbleLayout: config.typography?.bubbleLayout ?? defaultErasePlan.bubbleLayout },
+        stages: config.stages, runner: prepassRunner,
+        // One owned runner per run (Carrot: idle-TTL pool keeps one worker across pages).
+        async acquireEngine() {
+          if (!flux) {
+            const prepared = await preflightFlux(inpainting, projectRoot);
+            log.info('flux-runner', { binary: prepared.binary, sha256: prepared.identity.sha256, libraryDir: prepared.libraryDir });
+            flux = fluxEngine(inpainting, prepared, join(config.output, 'tmp', 'flux-inpainting'));
+          }
+          return { engine: flux, async release() {} };
+        },
+      });
+    }
+    let result;
+    try {
+      result = await run(config, { persistence: observed, stages,
+        onEvent: event => { log.info(event.type, { ...event }); progress.event(event); } });
+    } finally {
+      try {
+        await flux?.dispose();
+        if (flux) options.onRuntimeEvent?.('flux-disposed', {});
+      } finally {
+        flux = undefined;
+        setInpaintingRuntimeLogSink(undefined);
+      }
+    }
     await runtime?.close?.();
     runtime = undefined;
     log.info('run-result', { runId: result.runId, status: result.status, output: result.output, issues: result.issues });

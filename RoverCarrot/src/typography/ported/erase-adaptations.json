@@ -1,0 +1,58 @@
+{
+  "main/inpainting/imageIO.mjs": {
+    "reference": "src/main/inpainting/imageIO.ts",
+    "referenceSha256": "4dcd5cf8dd850e2320ccc29ea24b9ffe04b9650108739318310bdafcff7c9e8a",
+    "portSha256": "a338c13275e9d72f115e4c322cf34289226e47b519bf0a79efbea7fcf6b98ec7",
+    "authorship": "previous Claude session; audited by Codex continuation",
+    "adaptation": "Electron loader replaced with async sharp native-image shim; all buffer/path decodes awaited. Output path resolution unchanged."
+  },
+  "main/inpainting/imageRaster.mjs": {
+    "reference": "src/main/inpainting/imageRaster.ts",
+    "referenceSha256": "394f03269d71a881ba89ea85115c2ddad8554c26d398ba08a44fdb31d202ad58",
+    "portSha256": "308c6e7f699bb1391d7ce270a0cfa146c609e43a0dfd0ca391377dcd50d21db1",
+    "authorship": "previous Claude session; audited by Codex continuation",
+    "adaptation": "Electron import replaced; async decode/resize/PNG writes awaited. Bitmap crop, mask and composite algorithms unchanged."
+  },
+  "main/inpainting/patternPage.mjs": {
+    "reference": "src/main/inpainting/patternPage.ts",
+    "referenceSha256": "185bd62546f3247411050ecc896d1e2cdba4264674604db2b0eba596324fbf86",
+    "portSha256": "aa0d67c15bc799fc31b8b4bbad2ea666a6ba2928b6dab4c678c9984ee1e42ad9",
+    "authorship": "previous Claude session; audited by Codex continuation",
+    "adaptation": "Electron import replaced; output toPNG awaited. Erasure and block validation unchanged."
+  },
+  "main/inpainting/inpaintingRuntimeLogger.mjs": {
+    "reference": "src/main/inpainting/inpaintingRuntimeLogger.ts",
+    "referenceSha256": "0c969dc9e8643fc2ce6b492b950bd10ed0a2d9b2c1222425bedb5e09e36b0e22",
+    "portSha256": "435e6edb353c07b6cec4cfa951ce7916336081dfe088dc4819fdec84e45da815",
+    "authorship": "previous Claude session; audited by Codex continuation",
+    "adaptation": "Electron application logger replaced with CLI-bound sink; optional sink reset after run."
+  },
+  "main/safeCleanup.mjs": {
+    "reference": "src/main/safeCleanup.ts",
+    "referenceSha256": "0d959def57dbcacf57ccff8cd57dcd703df8eebb0de430621a8b2fa617624958",
+    "portSha256": "d2337695870fc1954b2b11f58dea5fa1c0c80c5dcf1b9e60d48bfc36c5880747",
+    "authorship": "previous Claude session; audited by Codex continuation",
+    "adaptation": "Logger import replaced with inpainting CLI sink; cleanup behavior unchanged."
+  },
+  "main/inpainting/inpaintMaskArtifact.mjs": {
+    "reference": "src/main/inpainting/inpaintMaskArtifact.ts",
+    "referenceSha256": "7f45a1825ba6d511d87b017fdb67b5c266a63e2ec20060793097e428eb2c3a8b",
+    "portSha256": "5c0020b2282567a17e746917f1d9c997a682d81ae7f4e82717e6c3db4bbe3260",
+    "authorship": "previous Claude session; audited by Codex continuation",
+    "adaptation": "Unused catch binding removed for lint; PNG encoding, union and provenance unchanged."
+  },
+  "shared/warpTransformMath.mjs": {
+    "reference": "src/shared/warpTransformMath.ts",
+    "referenceSha256": "e9c06eae71a6b1685d7ec492ad6e715420b6c34e29fb33febaf1ee4bc8697dbe",
+    "portSha256": "d44d7933ad02fe792b574d94f866af56ad4678dedbf38ff86d64f19defcbdad4",
+    "authorship": "previous Claude session; audited by Codex continuation",
+    "adaptation": "Unused catch binding removed for lint; math unchanged."
+  },
+  "main/inpainting/fluxWorker.mjs": {
+    "reference": "src/main/inpainting/fluxWorker.ts",
+    "referenceSha256": "385288b98c69b58f916404110728a6934cb9f7d925c9aebfb0c67e2d919f7602",
+    "portSha256": "531322115653a04c6c238ae9041eedaf113a3759c3576705d5bcfcf1d382d6c8",
+    "authorship": "Codex F1 pre-review rework",
+    "adaptation": "Collect all stderr lines including koharu tracing, buffer split lines, refuse CPU fallback for cuda-native via existing permanent-failure/owned-process termination path; JSON protocol and crop algorithms unchanged."
+  }
+}
