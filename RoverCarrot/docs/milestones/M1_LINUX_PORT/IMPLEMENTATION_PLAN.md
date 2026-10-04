@@ -19,15 +19,15 @@
 | 항목 | 값 |
 |---|---|
 | Active milestone | **M1 — Linux Port** ([목표와 요구사항](README.md#목표)) |
-| 현재 Step | [Step 6 — Inpainting / Erase](#step-6--inpainting--erase). Step 3·4·5는 review DEFERRED([Deferred Review Ledger](#deferred-review-ledger)) |
-| State | **IMPLEMENT** — 2026-10-03 Step 5 provisional baseline(work `45797b19`) 이후 Deferred Review Ledger에 따라 열림. production implementation 미시작 |
-| Next role | **implementation** (이번 session은 사용자 결정으로 Claude가 구현; Codex 미사용) |
-| 기준 commit | `45797b19a364b2b9100699363f312e9e3afbeacb`(accepted HEAD: Step 5 work commit) |
-| Task | Step 6 Scope 구현과 [Reference-driven validation](#reference-driven-validation), [GPU validation 운영](#gpu-validation-운영-2026-10-03-사용자-결정). 시작할 때 `STEP6_VALIDATION.md`를 만든다 |
-| 기준 문서 | [Step 6](#step-6--inpainting--erase), [M1-INPAINT-001](CURRENT.md#m1-inpaint-001--flux-klein-candle-runner-linux-runtime), D9·D19·D20·D21 |
-| Evidence / findings | 아직 없음. 위치: `STEP6_VALIDATION.md`(tracked), Git 제외 `RoverCarrot/test-data/validation/m1-step6/` |
+| 현재 Step | [Step 7 — Renderer (Skia primary)](#step-7--renderer-skia-primary). Step 3·4·5·6은 review DEFERRED([Deferred Review Ledger](#deferred-review-ledger)) |
+| State | **IMPLEMENT** — 2026-10-04 Step 6 provisional baseline(work `10a6813f`) 이후 Deferred Review Ledger에 따라 열림. production implementation 미시작 |
+| Next role | **implementation** (Codex; Claude는 orchestrator — [Orchestration 운영](#orchestration-운영-2026-10-03-사용자-결정)) |
+| 기준 commit | `10a6813fdfe623b82c7142c4726a77b5d376bb4d`(accepted HEAD: Step 6 work commit) |
+| Task | Step 7 Scope 구현과 [Reference-driven validation](#reference-driven-validation), [GPU validation 운영](#gpu-validation-운영-2026-10-03-사용자-결정). 시작할 때 `STEP7_VALIDATION.md`를 만든다 |
+| 기준 문서 | [Step 7](#step-7--renderer-skia-primary), [M1-RENDER-001](CURRENT.md#m1-render-001--linux-renderer-skia-canvas-primary-playwright-chromium-fallback), D22·D23 |
+| Evidence / findings | 아직 없음. 위치: `STEP7_VALIDATION.md`(tracked), Git 제외 `RoverCarrot/test-data/validation/m1-step7/` |
 | Open findings / cycle | 없음 / 0 of 3 |
-| 진행 기록 | 2026-10-03 Step 5 work `45797b19`, ledger DEFERRED(known difference 5건 사용자 수용). 2026-10-03 사용자 결정: 남은 M1 implementation은 Codex 없이 Claude가 구현·검증하며, 이 검증은 "Claude implementation-session validation"이고 independent review가 아니다. 사전 확인(read-only): Carrot Windows FLUX runtime = prebuilt runner `mgt-flux-klein-sm120` + CUDA 12.9 libraries + cuDNN 9.21; 이 머신에는 Rust toolchain이 없어 repo-local로 준비해야 함 |
+| 진행 기록 | 2026-10-04 Step 6 work `10a6813f`, ledger DEFERRED. Step 6은 이전 Claude session 초안을 Codex가 이어 완성(mixed authorship). 2026-10-03 사용자 결정: GCC 14(conda-forge, nvcc host compiler 전용)로 CUDA 12.9 sm120 runner build. Codex 역할 복원(implementation Codex, validation Claude orchestrator) |
 | 다음 transition | 구현·자체 검증·evidence 후 work commit, ledger에 review DEFERRED로 기록하고 다음 Step을 연다 |
 
 ## Deferred Review Ledger
@@ -44,6 +44,7 @@
 | 3 — OCR / Hayai | `044c5743` | [STEP3_VALIDATION.md](STEP3_VALIDATION.md), Git 제외 `RoverCarrot/test-data/validation/m1-step3/` | **DEFERRED** — implementation + Claude orchestrator 1차 검증(GPU 포함) 완료, fresh independent review 미실행 | 예 — Step 4 이후 translation 입력이 OCR `sourceText`에 의존 | 2026-10-03 사용자가 review 연기와 후속 M1 implementation 진행을 명시적으로 허용. handoff commit `ae8c13cc`. 후속 영향 commit: `1f8d7fca`(Step 4) — `src/cli/app.ts` composition, `core/contracts.ts`·`pipeline/run.ts`에 optional pendingMemory 추가. Step 3 observable contract 유지, GPU OCR regression 21/21 exact([STEP4 Claude verification](STEP4_VALIDATION.md#claude-orchestrator-verification)) |
 | 4 — Translation | `1f8d7fca` + `fb652920`(whitespace fix) | [STEP4_VALIDATION.md](STEP4_VALIDATION.md), Git 제외 `RoverCarrot/test-data/validation/m1-step4/` | **DEFERRED** — implementation + Claude orchestrator 1차 검증(실제 b9553 CUDA build, Q6_K GPU lifecycle·4-page E2E 포함), 재작업 1 cycle(F1 graceful shutdown), fresh independent review 미실행 | 예 — Step 5 layout eligibility가 `translatedText`, Step 6+가 전체 결과에 의존. Step 3(OCR `sourceText`)에 의존 | Step 1–3 파일 변경: `adapters/detection-resize.ts`(Step 2, optional height 인자 — 기본 동작 동일), `cli/app.ts`·`cli/config-file.ts`·`core/config.ts`·`core/contracts.ts`·`pipeline/run.ts`·`tests/boundaries.mjs`·`tools/copy-ocr-assets.mjs`(optional 확장). 이전 Step regression: check/smoke/boundaries/Python, Step 3 OCR CPU·GPU differential PASS |
 | 5 — Typography / Layout | `45797b19` | [STEP5_VALIDATION.md](STEP5_VALIDATION.md), [source trace](../../analysis/TYPOGRAPHY_LAYOUT_SOURCE_TRACE.md), Git 제외 `RoverCarrot/test-data/validation/m1-step5/` | **DEFERRED** — implementation Codex, validation Claude orchestrator(fresh reference 차분 260 block/248 estimate/21 layout patch exact, GPU 4-page E2E), fresh independent review 미실행 | 예 — Step 6 erase가 `fontSizePx`와 bubble layout 코드를, Step 7 renderer가 layout state를 사용. Step 4(`translatedText`)·Step 2(Koharu) 의존 | historical stored-output difference 5건을 2026-10-03 사용자가 항목 한정으로 수용(tolerance 없음, precedent 아님): [Known differences](STEP5_VALIDATION.md#known-differences-step-5-acceptance). D17 OPEN(autoFont=false 구현). Step 1–4 파일 변경: `cli/app.ts`·`cli/config-file.ts`·`core/config.ts`·`core/contracts.ts`·`tests/boundaries.mjs`·`tools/copy-ocr-assets.mjs`(optional 확장), regression PASS |
+| 6 — Inpainting / Erase | `10a6813f` | [STEP6_VALIDATION.md](STEP6_VALIDATION.md), Git 제외 `RoverCarrot/test-data/validation/m1-step6/` | **DEFERRED** — implementation mixed(이전 Claude session 초안 + Codex 완성·재작업 F1), validation Claude orchestrator(fresh reference 차분 46 page/260 block/1,192 crop exact·mask 밖 pixel 보존, GCC 14 CUDA build, GPU runner smoke·4-page E2E sequential lifecycle), fresh independent review 미실행 | 예 — Step 7 renderer가 inpainted raster를 사용. Step 5(`fontSizePx`, bubble layout)·Step 2(Koharu prepass) 의존 | Claude 초안 부분은 1차 검증이 독립이 아님. 미실행: Electron codec/resize 동등성(host에 reference Electron 없음; sharp shim은 Electron byte-equivalent 미검증). F1(WSL `libcuda.so` 미탐지로 CPU fallback)은 pre-review rework로 수정. Step 1–5 파일 변경: `cli/app.ts`·`cli/config-file.ts`·`core/config.ts`·`core/contracts.ts`·`tests/boundaries.mjs`·`tools/copy-ocr-assets.mjs`(optional 확장)·`typography/ported/source-map.json`(entry 추가), regression PASS |
 
 ## Progress
 
@@ -54,8 +55,8 @@
 | 3 | [OCR / Hayai](#step-3--ocr--hayai) | REVIEW | Linux Hayai `sourceText`가 기존 결과와 일치 |
 | 4 | [Translation](#step-4--translation) | REVIEW | 같은 입력으로 같은 request·parse·merge·memory 갱신 |
 | 5 | [Typography / Layout](#step-5--typography--layout) | REVIEW | 고정 입력의 font size·bubble layout이 reference와 일치 |
-| 6 | [Inpainting / Erase](#step-6--inpainting--erase) | IMPLEMENT | Linux FLUX runner로 기존 mask·erase 결과 재현 |
-| 7 | [Renderer (Skia primary)](#step-7--renderer-skia-primary) | NOT_STARTED | v3 fixture + Linux Skia smoke + font capability smoke |
+| 6 | [Inpainting / Erase](#step-6--inpainting--erase) | REVIEW | Linux FLUX runner로 기존 mask·erase 결과 재현 |
+| 7 | [Renderer (Skia primary)](#step-7--renderer-skia-primary) | IMPLEMENT | v3 fixture + Linux Skia smoke + font capability smoke |
 | 8 | [Full Integration & Interoperability](#step-8--full-integration--interoperability) | NOT_STARTED | Linux 순차 E2E + managed translation lifecycle + Windows Carrot open/use |
 
 ### 기본 8-Step에서 바꾼 점
@@ -133,6 +134,16 @@ Step `Status`([Progress](#progress), 각 Step section)와 handoff State는 같�
 7. FIX에서는 OPEN finding을 수정하거나 반박한다([반복 제한과 의견 불일치](#반복-제한과-의견-불일치)). finding Status를 FIXED 또는 DISPUTED로 바꾸고 같은 방식으로 REVIEW로 넘긴다.
 
 사용자 checkpoint 없이 다음 Step을 시작하지 않는다 예외는 [Deferred Review Ledger](#deferred-review-ledger)에 기록된 사용자 결정뿐이다.
+
+### Orchestration 운영 (2026-10-03 사용자 결정)
+
+남은 M1 Step에서 반복 적용한다.
+
+- 역할: Codex(`codex exec`)는 implementation(code·test·validation tool·bug fix·자체 검증). Claude는 orchestrator(상태 복구, Codex 지시, review, reference 비교, 1차 validation, runtime/GPU validation, Git commit/push, handoff/ledger). fresh independent review는 별도 Claude session이며 [Deferred Review Ledger](#deferred-review-ledger)가 추적한다.
+- Codex는 Git mutation, handoff/ledger 편집, Docker·sudo·system 변경, process kill을 하지 않는다. 한 Step이 여러 session/agent에 걸치면 validation 문서에 file/module 단위 authorship과 독립성 한계를 적는다.
+- 장시간 작업(build, GPU run, Codex)은 detached로 실행해 log·exit file을 남기고, Git 제외 `test-data/validation/m1-step<n>/PROGRESS.md`에 진행·다음 action을 적는다. 중단 시 버리거나 다시 하지 않고 이 기록과 working tree에서 이어간다.
+- GPU validation은 [GPU validation 운영](#gpu-validation-운영-2026-10-03-사용자-결정)에 더해 실행마다 timeout 상한을 둔다(container 장시간 중단 방지). GPU 사용은 device 표시만으로 인정하지 않고 runtime의 positive GPU 신호와 timing으로 확인하며, 순차 lifecycle(이전 GPU process 종료·VRAM 복귀 후 다음 runtime 시작)을 evidence로 남긴다.
+- commit은 명시적 path만 stage한다(`git add -A`·`.`·`--all` 금지). commit 전 `git diff --cached --stat/--name-status/--check`와 내용을 검토하고, work commit과 handoff-only commit을 분리한다. model·binary·toolchain·cache·output·개인 절대경로는 commit하지 않는다.
 
 ### Independent review role
 
@@ -588,7 +599,7 @@ CURRENT.md의 모든 `Decision / validation needed`와 이 계획 작성 중 확
 
 ## Step 6 — Inpainting / Erase
 
-- **Status:** IMPLEMENT
+- **Status:** REVIEW
 - **Goal:** 기존 erase/inpainting 동작을 Linux RoverCMT로 이식한다.
 - **Scope:** mask 생성, crop 계획, bubble prepass 의존, 상주 FLUX runner(Rust/Candle, Linux CUDA), 결과 artifact와 block binding(`erasedWorkflowRegions`), 현재 erase semantics.
 - **Explicit non-goals:** Fast Erase, solid balloon fill, crop 수 감소 등 [M4 Inpainting IDEAS](../M4_OPTIMIZATION/IDEAS.md#inpainting). Koharu LaMa/AOT, Codex erase, Python Diffusers, ZLUDA/HIP([INPAINTING §17 DROP INITIALLY](../../analysis/INPAINTING_PIPELINE_MIGRATION_ANALYSIS.md#17-recommended-migration-boundary)). Translation ↔ Erase 병렬 통합(Post-M1).
@@ -606,17 +617,17 @@ CURRENT.md의 모든 `Decision / validation needed`와 이 계획 작성 중 확
 - **Validation:** 고정 page/block/mask 입력으로 기존 `inpaintMaskPath`·`inpaintedImagePath`와 비교한다(INPAINTING §18 protocol smoke부터). model load 시간과 crop 시간은 기록만 한다.
 - **Completion criteria:** erase 결과가 Rover stage boundary로 저장되고 layout·renderer가 쓸 수 있음. [DONE 조건](#step-status와-done-조건) 충족.
 - **Result:**
-  - Status: —
-  - Progress notes: —
-  - Commit: —
-  - Validation result: —
-  - Known differences: —
+  - Status: REVIEW — review DEFERRED([ledger](#deferred-review-ledger))
+  - Progress notes: implementation mixed(이전 Claude session 초안 + Codex), validation Claude orchestrator. Branch `main`
+  - Commit: work `10a6813f`
+  - Validation result: [STEP6_VALIDATION.md](STEP6_VALIDATION.md). fresh reference 차분 46 page/260 block/599+593 crop·production geometry 1,474 crop exact, mask 밖 pixel 보존; runner SHA-256 `d5173800…`(CUDA 12.9, sm120, GCC 14 nvcc host); GPU runner smoke·4-page E2E PASS(42 crop 34.6 s, model load 66 s, llama-server 종료·VRAM 복귀 후 Flux 시작); check 105/105, smoke 15/15, boundaries, Python 29/29
+  - Known differences: diffusion pixel은 parity 대상 아님. Electron codec/resize 동등성 미검증(실행 불가, 위 ledger 비고)
   - Remaining coupling / follow-up: —
   - Follow-up items: —
 
 ## Step 7 — Renderer (Skia primary)
 
-- **Status:** NOT_STARTED
+- **Status:** IMPLEMENT
 - **Goal:** M1 renderer를 Linux에서 구현한다. 확정 전략은 [M1-RENDER-001](CURRENT.md#m1-render-001--linux-renderer-skia-canvas-primary-playwright-chromium-fallback)을 따른다: Skia Canvas primary, Playwright Chromium fallback/reference.
 - **Scope:** Skia Canvas renderer backend, page composition(inpainted raster + typography/layout state), pinned font 배포, output 형식(D23), v3 contract-aligned fixture 재사용, Skia capability smoke(Korean/Japanese CJK font loading, Latin/digit 혼용, font fallback, CJK shaping, vertical text, 일반적인 font switching).
 - **Explicit non-goals:** 대규모 font benchmark. Playwright 제거 또는 REJECTED 처리. renderer 성능 최적화([M4-RENDER-001](../M4_OPTIMIZATION/IDEAS.md#m4-render-001--선택된-linux-renderer-backend의-성능-최적화)). M2 Golden Sample 구성. 현재 library에서 쓰이지 않는 advanced field의 삭제(schema는 optional로 유지, [CORE §16](../../analysis/CORE_DATA_MODEL_PIPELINE_CONTRACT_ANALYSIS.md#16-what-not-to-migrate-초기)).
