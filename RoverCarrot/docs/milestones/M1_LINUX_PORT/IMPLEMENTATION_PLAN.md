@@ -22,12 +22,12 @@
 | 현재 Step | [Step 7 — Renderer (Skia primary)](#step-7--renderer-skia-primary). Step 3·4·5·6은 review DEFERRED([Deferred Review Ledger](#deferred-review-ledger)) |
 | State | **IMPLEMENT** — 2026-10-04 Step 6 provisional baseline(work `10a6813f`) 이후 Deferred Review Ledger에 따라 열림. production implementation 미시작 |
 | Next role | **implementation** (Codex; Claude는 orchestrator — [Orchestration 운영](#orchestration-운영-2026-10-03-사용자-결정)) |
-| 기준 commit | `10a6813fdfe623b82c7142c4726a77b5d376bb4d`(accepted HEAD: Step 6 work commit) |
+| 기준 commit | `e9c3d9b8254c296e79d560d6b61feeccb452af1a`(accepted HEAD: Step 3 deferred review commit) |
 | Task | Step 7 Scope 구현과 [Reference-driven validation](#reference-driven-validation), [GPU validation 운영](#gpu-validation-운영-2026-10-03-사용자-결정). 시작할 때 `STEP7_VALIDATION.md`를 만든다 |
 | 기준 문서 | [Step 7](#step-7--renderer-skia-primary), [M1-RENDER-001](CURRENT.md#m1-render-001--linux-renderer-skia-canvas-primary-playwright-chromium-fallback), D22·D23 |
 | Evidence / findings | 아직 없음. 위치: `STEP7_VALIDATION.md`(tracked), Git 제외 `RoverCarrot/test-data/validation/m1-step7/` |
 | Open findings / cycle | 없음 / 0 of 3 |
-| 진행 기록 | 2026-10-04 Step 6 work `10a6813f`, ledger DEFERRED. Step 6은 이전 Claude session 초안을 Codex가 이어 완성(mixed authorship). 2026-10-03 사용자 결정: GCC 14(conda-forge, nvcc host compiler 전용)로 CUDA 12.9 sm120 runner build. Codex 역할 복원(implementation Codex, validation Claude orchestrator) |
+| 진행 기록 | 2026-10-04 Step 6 work `10a6813f`, ledger DEFERRED. Step 6은 이전 Claude session 초안을 Codex가 이어 완성(mixed authorship). 2026-10-03 사용자 결정: GCC 14(conda-forge, nvcc host compiler 전용)로 CUDA 12.9 sm120 runner build. Codex 역할 복원(implementation Codex, validation Claude orchestrator). 2026-10-04 Step 7: renderer v3 fixture 원본 chapter(`302a1e8a…/592a103c…`)가 없어 사용자 결정으로 원본 복원 대기, production 미시작(대체 fixture·manifest 변경 금지). 2026-10-04 사용자 지시로 Step 3→6 deferred independent review(Codex·Claude dual) 진행: Step 3 결과 FIX(S3-F01) |
 | 다음 transition | 구현·자체 검증·evidence 후 work commit, ledger에 review DEFERRED로 기록하고 다음 Step을 연다 |
 
 ## Deferred Review Ledger
@@ -41,7 +41,7 @@
 
 | Step | Implementation work commit | Validation / evidence | Review | 후속 Step 의존 | 비고 |
 |---|---|---|---|---|---|
-| 3 — OCR / Hayai | `044c5743` | [STEP3_VALIDATION.md](STEP3_VALIDATION.md), Git 제외 `RoverCarrot/test-data/validation/m1-step3/` | **DEFERRED** — implementation + Claude orchestrator 1차 검증(GPU 포함) 완료, fresh independent review 미실행 | 예 — Step 4 이후 translation 입력이 OCR `sourceText`에 의존 | 2026-10-03 사용자가 review 연기와 후속 M1 implementation 진행을 명시적으로 허용. handoff commit `ae8c13cc`. 후속 영향 commit: `1f8d7fca`(Step 4) — `src/cli/app.ts` composition, `core/contracts.ts`·`pipeline/run.ts`에 optional pendingMemory 추가. Step 3 observable contract 유지, GPU OCR regression 21/21 exact([STEP4 Claude verification](STEP4_VALIDATION.md#claude-orchestrator-verification)) |
+| 3 — OCR / Hayai | `044c5743` | [STEP3_VALIDATION.md](STEP3_VALIDATION.md), Git 제외 `RoverCarrot/test-data/validation/m1-step3/` | **FIX** — 2026-10-04 deferred independent review 실행(Codex·Claude 각각 독립, work commit과 HEAD `a620b4cf`): 두 reviewer 모두 REQUIRED_FIX — [S3-F01](STEP3_VALIDATION.md#review-findings) Medium OPEN(batch OCR 실패가 page issue/partial로 기록됨). 그 외 contract는 fresh reference 실행과 일치([review](STEP3_VALIDATION.md#deferred-independent-review-2026-10-04)) | 예 — Step 4 이후 translation 입력이 OCR `sourceText`에 의존 | 2026-10-03 사용자가 review 연기와 후속 M1 implementation 진행을 명시적으로 허용. handoff commit `ae8c13cc`. 후속 영향 commit: `1f8d7fca`(Step 4) — `src/cli/app.ts` composition, `core/contracts.ts`·`pipeline/run.ts`에 optional pendingMemory 추가. Step 3 observable contract 유지, GPU OCR regression 21/21 exact([STEP4 Claude verification](STEP4_VALIDATION.md#claude-orchestrator-verification)) |
 | 4 — Translation | `1f8d7fca` + `fb652920`(whitespace fix) | [STEP4_VALIDATION.md](STEP4_VALIDATION.md), Git 제외 `RoverCarrot/test-data/validation/m1-step4/` | **DEFERRED** — implementation + Claude orchestrator 1차 검증(실제 b9553 CUDA build, Q6_K GPU lifecycle·4-page E2E 포함), 재작업 1 cycle(F1 graceful shutdown), fresh independent review 미실행 | 예 — Step 5 layout eligibility가 `translatedText`, Step 6+가 전체 결과에 의존. Step 3(OCR `sourceText`)에 의존 | Step 1–3 파일 변경: `adapters/detection-resize.ts`(Step 2, optional height 인자 — 기본 동작 동일), `cli/app.ts`·`cli/config-file.ts`·`core/config.ts`·`core/contracts.ts`·`pipeline/run.ts`·`tests/boundaries.mjs`·`tools/copy-ocr-assets.mjs`(optional 확장). 이전 Step regression: check/smoke/boundaries/Python, Step 3 OCR CPU·GPU differential PASS |
 | 5 — Typography / Layout | `45797b19` | [STEP5_VALIDATION.md](STEP5_VALIDATION.md), [source trace](../../analysis/TYPOGRAPHY_LAYOUT_SOURCE_TRACE.md), Git 제외 `RoverCarrot/test-data/validation/m1-step5/` | **DEFERRED** — implementation Codex, validation Claude orchestrator(fresh reference 차분 260 block/248 estimate/21 layout patch exact, GPU 4-page E2E), fresh independent review 미실행 | 예 — Step 6 erase가 `fontSizePx`와 bubble layout 코드를, Step 7 renderer가 layout state를 사용. Step 4(`translatedText`)·Step 2(Koharu) 의존 | historical stored-output difference 5건을 2026-10-03 사용자가 항목 한정으로 수용(tolerance 없음, precedent 아님): [Known differences](STEP5_VALIDATION.md#known-differences-step-5-acceptance). D17 OPEN(autoFont=false 구현). Step 1–4 파일 변경: `cli/app.ts`·`cli/config-file.ts`·`core/config.ts`·`core/contracts.ts`·`tests/boundaries.mjs`·`tools/copy-ocr-assets.mjs`(optional 확장), regression PASS |
 | 6 — Inpainting / Erase | `10a6813f` | [STEP6_VALIDATION.md](STEP6_VALIDATION.md), Git 제외 `RoverCarrot/test-data/validation/m1-step6/` | **DEFERRED** — implementation mixed(이전 Claude session 초안 + Codex 완성·재작업 F1), validation Claude orchestrator(fresh reference 차분 46 page/260 block/1,192 crop exact·mask 밖 pixel 보존, GCC 14 CUDA build, GPU runner smoke·4-page E2E sequential lifecycle), fresh independent review 미실행 | 예 — Step 7 renderer가 inpainted raster를 사용. Step 5(`fontSizePx`, bubble layout)·Step 2(Koharu prepass) 의존 | Claude 초안 부분은 1차 검증이 독립이 아님. 미실행: Electron codec/resize 동등성(host에 reference Electron 없음; sharp shim은 Electron byte-equivalent 미검증). F1(WSL `libcuda.so` 미탐지로 CPU fallback)은 pre-review rework로 수정. Step 1–5 파일 변경: `cli/app.ts`·`cli/config-file.ts`·`core/config.ts`·`core/contracts.ts`·`tests/boundaries.mjs`·`tools/copy-ocr-assets.mjs`(optional 확장)·`typography/ported/source-map.json`(entry 추가), regression PASS |
@@ -52,7 +52,7 @@
 |---|---|---|---|
 | 1 | [Core Architecture, Contracts & CLI Adapter](#step-1--core-architecture-contracts--cli-adapter) | DONE | Carrot loader contract 확인 + Core boundary + CLI로 minimal pipeline smoke. **사용자 검토 checkpoint** |
 | 2 | [Detection / Koharu](#step-2--detection--koharu) | DONE | Linux detection 결과가 기존 `hayai-regions.json`과 region 수·bbox·순서 일치 |
-| 3 | [OCR / Hayai](#step-3--ocr--hayai) | REVIEW | Linux Hayai `sourceText`가 기존 결과와 일치 |
+| 3 | [OCR / Hayai](#step-3--ocr--hayai) | FIX | Linux Hayai `sourceText`가 기존 결과와 일치 |
 | 4 | [Translation](#step-4--translation) | REVIEW | 같은 입력으로 같은 request·parse·merge·memory 갱신 |
 | 5 | [Typography / Layout](#step-5--typography--layout) | REVIEW | 고정 입력의 font size·bubble layout이 reference와 일치 |
 | 6 | [Inpainting / Erase](#step-6--inpainting--erase) | REVIEW | Linux FLUX runner로 기존 mask·erase 결과 재현 |
@@ -513,7 +513,7 @@ CURRENT.md의 모든 `Decision / validation needed`와 이 계획 작성 중 확
 
 ## Step 3 — OCR / Hayai
 
-- **Status:** REVIEW
+- **Status:** FIX
 - **Goal:** HayaiOCR Linux worker와 Rover adapter를 이식한다.
 - **Scope:** Linux Python worker, pinned model/runtime, region manifest 입력, OCR 실행, normalization/sanitize, OCR 결과 → block binding, `ocrSubdivision` 관련 기존 동작, `sourceText` 생성, stage/runtime boundary.
 - **Explicit non-goals:** VLM 단독 OCR+Translation 통합([M4-TRANS-001](../M4_OPTIMIZATION/IDEAS.md#m4-trans-001--hayai-ocr--vision-translation을-vision-llm-단독-ocrtranslation으로-통합)). PaddleOCR legacy, ROCm, Windows managed Python. 성능 최적화.
@@ -528,7 +528,7 @@ CURRENT.md의 모든 `Decision / validation needed`와 이 계획 작성 중 확
 - **Validation:** 고정 region manifest와 원본 raster로 기존 `ocr-bbox-hints.json`의 OCR text와 Rover normalized `sourceText`를 region별로 비교한다(OCR §12 S3–S4). 차이는 판정이 아니라 기록 대상이다.
 - **Completion criteria:** OCR 결과가 block에 binding되어 Step 4 translation 입력으로 쓸 수 있음. [DONE 조건](#step-status와-done-조건) 충족.
 - **Result:**
-  - Status: REVIEW (2026-10-03, 독립 review 대기)
+  - Status: FIX — 2026-10-04 deferred independent review(Codex·Claude): S3-F01 Medium REQUIRED_FIX OPEN, cycle 1 of 3
   - Progress notes: implementation(Codex) + orchestrator 1차 검증·GPU 검증(Claude) 완료, pre-review rework 1회(durable runtime, CPU-only thread env, comparator count/unbound 기록). D31은 설치 앱 data root로 재binding(2026-10-03 user decision). Branch `main`.
   - Commit: work `044c5743`
   - Validation result: [STEP3_VALIDATION.md](STEP3_VALIDATION.md). check 54/54, smoke 15/15, boundaries PASS, Python 11/11; CPU differential 3p/21 exact; GPU(cu130, RTX 5090) differential 46p/261: reference worker == Rover worker, 정규화 exact, 저장 Carrot hints text 261/261, sourceText 256/256(5 unbound); 4-page CPU/GPU CLI PASS(42 blocks); strict schema PASS
