@@ -313,7 +313,24 @@ inference commands completed. No Git mutation, handoff/state edit, root
 reference edit or old evidence overwrite was performed. GPU inference is
 the only requested follow-up left to Claude; cu130 installation is complete.
 
+## Deferred independent review (2026-10-04)
+
+Dual independent review requested by the user ("deferred independent review backlog"): Codex and Claude reviewed separately in detached worktrees of the work commit `044c5743` (historical acceptance) and of accepted HEAD `a620b4cf` (current regression). Claude sealed its verdict before reading Codex's report; Codex's prompt was a neutral template and Codex did not read Claude's output. Earlier self-validation/orchestrator results were not used as verdict evidence. Evidence (Git-ignored): `test-data/validation/m1-review-20261004/step3/` (`summary.md`, `claude/`, `codex-phase1/`, `codex-phase2/`).
+
+| Authorship × reviewer | Author | Reviewer | Independence |
+|---|---|---|---|
+| Step 3 code / tests / tools | Codex | Codex | weaker (self-review) |
+| Step 3 code / tests / tools | Codex | Claude | stronger |
+| 2026-10-03 GPU/orchestrator evidence | Claude | Claude | weaker — not reused; re-executed |
+
+Fresh results (both revisions unless noted): worker byte-identical to reference (`06a86529…`); 11 model files and both venvs equal to pins/locks; `npm run check` 54/54 (work) and 105/105 (HEAD), smoke 15/15, boundaries, Python 11/11 and 29/29; CPU differential 3 pages / 21 regions exact; GPU (Claude, container wrapper) HEAD 46 pages / 261 regions reference == Rover, text 261/261, sourceText 256/256 + 5 unbound, work commit 3 pages / 21 exact; Codex recomputed the GPU comparison from raw JSON and reran the subset on CPU (all fields equal); binding (prepare/apply/guard) against the unmodified reference functions: 0 differences (Claude 53 pages, Codex AST-extracted harness); sanitize 30,000 and normalization 5,000 fuzz cases: 0 differences; 4-page CLI PASS and strict `LibraryChapterFileSchema` PASS.
+
+Disagreement and resolution: Codex phase 1 PASS vs Claude REQUIRED_FIX on the batch OCR failure path. Codex reproduced it independently in phase 2 (non-zero exit, missing output, real timeout; unmodified reference `executePageWorkflow` executed) and changed its verdict to REQUIRED_FIX (original verdict hash recorded). Severity: Claude Low → Medium after Codex's evidence (Step 1 D7 separates page issues/partial from infrastructure failures/failed; Rover also commits unchanged pages and synthesizes page failure events).
+
+**Result: REQUIRED_FIX (both reviewers) → Step 3 State FIX.** Limitations: no real subdivided/recovered/failed Hayai fixture (synthetic coverage only), no GPU OOM, no Windows GUI interop (Step 8); the work-commit GPU CLI artefact was contaminated by a reviewer operator error and excluded (work-commit CPU CLI and HEAD GPU CLI PASS).
+
 ## Review findings
 
 | ID | Severity | Disposition | Status | Rounds | Finding / evidence |
 |---|---|---|---|---|---|
+| S3-F01 | Medium | REQUIRED_FIX | OPEN | 0 | Batch HayaiOCR preparation failure (worker non-zero exit, timeout, unreadable output, detector-release error) is caught by `pipeline/run.ts` and turned into one retryable page issue per eligible page with run `partial` (unchanged pages committed, page failure events synthesized). Unmodified reference `executePageWorkflow` records one chapter-level issue without pageId, run `failed`, no later stage. Reproduced at `044c5743` and HEAD by both reviewers ([deferred review](#deferred-independent-review-2026-10-04); evidence `m1-review-20261004/step3/`). Repair direction: propagate `prepare` failure to the run-level failure boundary (`core/run.ts`), keep page-result failures partial, add a paired regression against the reference. Downstream: no persisted page-data difference; only OCR has a failing `prepare` |
